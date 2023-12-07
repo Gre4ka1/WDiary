@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jan">Январь</string>
+    <string name="feb">Февраль</string>
+    <string name="mar">Март</string>
+    <string name="apr">Апрель</string>
+    <string name="may">Май</string>
+    <string name="jun">Июнь</string>
+    <string name="jul">Июль</string>
+    <string name="aug">Август</string>
+    <string name="sep">Сентябрь</string>
+    <string name="oct">Октябрь</string>
+    <string name="nov">Ноябрь</string>
+    <string name="dec">Декабрь</string>
+    <string name="mon">Понедельник</string>
+    <string name="tue">Вторник</string>
+    <string name="wed">Среда</string>
+    <string name="thu">Четверг</string>
+    <string name="fri">Пятница</string>
+    <string name="sat">Суббота</string>
+    <string name="sunday">Воскресенье</string>
+</resources>
