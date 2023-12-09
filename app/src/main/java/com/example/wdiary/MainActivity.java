@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,7 +23,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -57,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void getWeather(View v) {
-        Double lat = 55.01;
-        Double lng = 82.01;
         String units = "metric";
         String lang = "ru";
         String key = WeatherAPI.KEY;
@@ -66,11 +67,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "OK");
 
         // get weather for today
-        Call<WeatherDay> callToday = api.getToday(lat, lng, units,lang, key);
+        Call<WeatherDay> callToday = api.getToday("Novosibirsk", units,lang, key);
         callToday.enqueue(new Callback<WeatherDay>() {
             @Override
             public void onResponse(Call<WeatherDay> call, Response<WeatherDay> response) {
-                Log.e(TAG, "onResponse");
+                Log.i(TAG, "onResponse");
                 WeatherDay data = response.body();
                 //Log.d(TAG,response.toString());
 
@@ -88,77 +89,91 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // get weather forecast
-//        Call<WeatherForecast> callForecast = api.getForecast(lat, lng, units, key);
-//        callForecast.enqueue(new Callback<WeatherForecast>() {
-//            @Override
-//            public void onResponse(Call<WeatherForecast> call, Response<WeatherForecast> response) {
-//                Log.e(TAG, "onResponse");
-//                WeatherForecast data = response.body();
-//                //Log.d(TAG,response.toString());
-//
-//                if (response.isSuccessful()) {
-//                    SimpleDateFormat formatDayOfWeek = new SimpleDateFormat("E");
-//                    LayoutParams paramsTextView = new LayoutParams(
-//                            LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-//                    LayoutParams paramsImageView = new LayoutParams(convertDPtoPX(40, MainActivity.this),
-//                            convertDPtoPX(40, MainActivity.this));
-//
-//                    int marginRight = convertDPtoPX(15, MainActivity.this);
-//                    LayoutParams paramsLinearLayout = new LayoutParams(LayoutParams.WRAP_CONTENT,
-//                            LayoutParams.WRAP_CONTENT);
-//                    paramsLinearLayout.setMargins(0, 0, marginRight, 0);
-//
-//                    llForecast.removeAllViews();
-//
-//                    for (WeatherDay day : data.getItems()) {
-//                        if (day.getDate().get(Calendar.HOUR_OF_DAY) == 15) {
-//                            String date = String.format("%d.%d.%d %d:%d",
-//                                    day.getDate().get(Calendar.DAY_OF_MONTH),
-//                                    day.getDate().get(Calendar.WEEK_OF_MONTH),
-//                                    day.getDate().get(Calendar.YEAR),
-//                                    day.getDate().get(Calendar.HOUR_OF_DAY),
-//                                    day.getDate().get(Calendar.MINUTE)
-//                            );
-//                            Log.d(TAG, date);
-//                            Log.d(TAG, day.getTempInteger());
-//                            Log.d(TAG, "---");
-//
-//                            // child view wrapper
-//                            LinearLayout childLayout = new LinearLayout(MainActivity.this);
-//                            childLayout.setLayoutParams(paramsLinearLayout);
-//                            childLayout.setOrientation(LinearLayout.VERTICAL);
-//
-//                            // show day of week
-//                            TextView tvDay = new TextView(MainActivity.this);
-//                            String dayOfWeek = formatDayOfWeek.format(day.getDate().getTime());
-//                            tvDay.setText(dayOfWeek);
-//                            tvDay.setLayoutParams(paramsTextView);
-//                            childLayout.addView(tvDay);
-//
-//                            // show image
-//                            ImageView ivIcon = new ImageView(MainActivity.this);
-//                            ivIcon.setLayoutParams(paramsImageView);
-//                            Glide.with(MainActivity.this).load(day.getIconUrl()).into(ivIcon);
-//                            childLayout.addView(ivIcon);
-//
-//                            // show temp
-//                            TextView tvTemp = new TextView(MainActivity.this);
-//                            tvTemp.setText(day.getTempWithDegree());
-//                            tvTemp.setLayoutParams(paramsTextView);
-//                            childLayout.addView(tvTemp);
-//
-//                            llForecast.addView(childLayout);
-//                        }
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<WeatherForecast> call, Throwable t) {
-//                Log.e(TAG, "onFailure");
-//                Log.e(TAG, t.toString());
-//            }
-//        });
+        Call<WeatherForecast> callForecast = api.getForecast("Novosibirsk", units,lang, key);
+        callForecast.enqueue(new Callback<WeatherForecast>() {
+            @Override
+            public void onResponse(Call<WeatherForecast> call, Response<WeatherForecast> response) {
+                Log.i(TAG, "onResponse");
+                WeatherForecast data = response.body();
+                //Log.d(TAG,response.toString());
+
+                if (response.isSuccessful()) {
+                    Log.i(TAG, "Forecast Success");
+                    SimpleDateFormat formatDayOfWeek = new SimpleDateFormat("E");
+                    /*LayoutParams paramsTextView = new LayoutParams(
+                            LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+                    LayoutParams paramsImageView = new LayoutParams(convertDPtoPX(40, MainActivity.this),
+                            convertDPtoPX(40, MainActivity.this));
+
+                    int marginRight = convertDPtoPX(15, MainActivity.this);
+                    LayoutParams paramsLinearLayout = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                            LayoutParams.WRAP_CONTENT);
+                    paramsLinearLayout.setMargins(0, 0, marginRight, 0);
+
+                    llForecast.removeAllViews();*/
+
+                    for (WeatherDay day : data.getItems()) {
+                        Log.d(TAG,"Hour of day;  "+day.getDate().get(Calendar.HOUR_OF_DAY));
+                        if (day.getDate().get(Calendar.HOUR_OF_DAY) == 16) {
+                            String date = String.format("%d.%d.%d %d:%d",
+                                    day.getDate().get(Calendar.DAY_OF_MONTH),
+                                    day.getDate().get(Calendar.WEEK_OF_MONTH),
+                                    day.getDate().get(Calendar.YEAR),
+                                    day.getDate().get(Calendar.HOUR_OF_DAY),
+                                    day.getDate().get(Calendar.MINUTE)
+                            );
+                            Log.d(TAG, date);
+                            Log.d(TAG, day.getTempInteger());
+                            Log.d(TAG, "---");
+                            //TODO List<view>       list[i]
+                            String dayOfWeek_ = formatDayOfWeek.format(day.getDate().getTime());
+                            Map<String,String> dayOfWeek = new HashMap<>();
+                            dayOfWeek.put("пн", getString(R.string.mon));
+                            dayOfWeek.put("вт", getString(R.string.tue));
+                            dayOfWeek.put("ср", getString(R.string.wed));
+                            dayOfWeek.put("чт", getString(R.string.thu));
+                            dayOfWeek.put("пт", getString(R.string.fri));
+                            dayOfWeek.put("сб", getString(R.string.sunday));
+                            dayOfWeek.put("вс", getString(R.string.sat));
+                            binding.date1.setText(day.getDate().get(Calendar.DAY_OF_MONTH)+", "+dayOfWeek.get(dayOfWeek_));
+                            binding.temperature1.setText(day.getTempWithDegree());
+                            binding.weather1.setText(day.getWVel()+" м/с");
+                            /*// child view wrapper
+                            LinearLayout childLayout = new LinearLayout(MainActivity.this);
+                            childLayout.setLayoutParams(paramsLinearLayout);
+                            childLayout.setOrientation(LinearLayout.VERTICAL);
+
+                            // show day of week
+                            TextView tvDay = new TextView(MainActivity.this);
+                            String dayOfWeek = formatDayOfWeek.format(day.getDate().getTime());
+                            tvDay.setText(dayOfWeek);
+                            tvDay.setLayoutParams(paramsTextView);
+                            childLayout.addView(tvDay);
+
+                            // show image
+                            ImageView ivIcon = new ImageView(MainActivity.this);
+                            ivIcon.setLayoutParams(paramsImageView);
+                            Glide.with(MainActivity.this).load(day.getIconUrl()).into(ivIcon);
+                            childLayout.addView(ivIcon);
+
+                            // show temp
+                            TextView tvTemp = new TextView(MainActivity.this);
+                            tvTemp.setText(day.getTempWithDegree());
+                            tvTemp.setLayoutParams(paramsTextView);
+                            childLayout.addView(tvTemp);
+
+                            llForecast.addView(childLayout);*/
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WeatherForecast> call, Throwable t) {
+                Log.e(TAG, "onFailure");
+                Log.e(TAG, t.toString());
+            }
+        });
 
     }
     /*private void setInitialData(){

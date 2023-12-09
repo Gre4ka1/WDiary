@@ -14,8 +14,7 @@ public class WeatherAPI {
     public interface ApiInterface {
         @GET("weather")
         Call<WeatherDay> getToday(
-                @Query("lat") Double lat,
-                @Query("lon") Double lon,
+                @Query("q") String city,
                 @Query("units") String units,
                 @Query("lang") String lang,
                 @Query("appid") String appid
@@ -23,9 +22,9 @@ public class WeatherAPI {
 
         @GET("forecast")
         Call<WeatherForecast> getForecast(
-                @Query("lat") Double lat,
-                @Query("lon") Double lon,
+                @Query("q") String city,
                 @Query("units") String units,
+                @Query("lang") String lang,
                 @Query("appid") String appid
         );
     }
