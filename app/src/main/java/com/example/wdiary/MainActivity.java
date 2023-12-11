@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.wdiary.databinding.ActivityMainBinding;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 //Log.d(TAG,response.toString());
 
                 if (response.isSuccessful()) {
-                    binding.tvTemp.setText(data.getCity() + " " + data.getTempWithDegree()+" "+data.getWVel());
+                    binding.tvTemp.setText(data.getCity() + " " + data.getTempWithDegree()+"\n"+data.getWVel()+" м/с");
                     //Glide.with(MainActivity.this).load(data.getIconUrl()).into(binding.ivImage);
                 }
             }
@@ -111,13 +112,18 @@ public class MainActivity extends AppCompatActivity {
                     paramsLinearLayout.setMargins(0, 0, marginRight, 0);
 
                     llForecast.removeAllViews();*/
-
+                    int i=0;
                     for (WeatherDay day : data.getItems()) {
-                        Log.d(TAG,"Hour of day;  "+day.getDate().get(Calendar.HOUR_OF_DAY));
+                        if (i==0){
+                            i++;
+                            continue;
+                        }
+                        if (i>=4) break;
                         if (day.getDate().get(Calendar.HOUR_OF_DAY) == 16) {
+
                             String date = String.format("%d.%d.%d %d:%d",
                                     day.getDate().get(Calendar.DAY_OF_MONTH),
-                                    day.getDate().get(Calendar.WEEK_OF_MONTH),
+                                    day.getDate().get(Calendar.MONTH),   //0-12 0-jan
                                     day.getDate().get(Calendar.YEAR),
                                     day.getDate().get(Calendar.HOUR_OF_DAY),
                                     day.getDate().get(Calendar.MINUTE)
@@ -125,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, date);
                             Log.d(TAG, day.getTempInteger());
                             Log.d(TAG, "---");
-                            //TODO List<view>       list[i]
+
                             String dayOfWeek_ = formatDayOfWeek.format(day.getDate().getTime());
                             Map<String,String> dayOfWeek = new HashMap<>();
                             dayOfWeek.put("пн", getString(R.string.mon));
@@ -135,9 +141,19 @@ public class MainActivity extends AppCompatActivity {
                             dayOfWeek.put("пт", getString(R.string.fri));
                             dayOfWeek.put("сб", getString(R.string.sunday));
                             dayOfWeek.put("вс", getString(R.string.sat));
-                            binding.date1.setText(day.getDate().get(Calendar.DAY_OF_MONTH)+", "+dayOfWeek.get(dayOfWeek_));
+
+                            TextView[] vList = new TextView[]{binding.date1,binding.date2,binding.date3,
+                                    binding.temperature1,binding.temperature2,binding.temperature3,
+                                    binding.weather1,binding.weather2,binding.weather3};
+
+
+
+                            vList[i-1].setText(day.getDate().get(Calendar.DAY_OF_MONTH)+", "+dayOfWeek.get(dayOfWeek_));
+                            vList[i+2].setText(day.getTempWithDegree());
+                            vList[i+5].setText(day.getWVel()+" м/с");
+                            /*binding.date1.setText(day.getDate().get(Calendar.DAY_OF_MONTH)+", "+dayOfWeek.get(dayOfWeek_));
                             binding.temperature1.setText(day.getTempWithDegree());
-                            binding.weather1.setText(day.getWVel()+" м/с");
+                            binding.weather1.setText(day.getWVel()+" м/с");*/
                             /*// child view wrapper
                             LinearLayout childLayout = new LinearLayout(MainActivity.this);
                             childLayout.setLayoutParams(paramsLinearLayout);
@@ -163,7 +179,9 @@ public class MainActivity extends AppCompatActivity {
                             childLayout.addView(tvTemp);
 
                             llForecast.addView(childLayout);*/
+                            i++;
                         }
+
                     }
                 }
             }
