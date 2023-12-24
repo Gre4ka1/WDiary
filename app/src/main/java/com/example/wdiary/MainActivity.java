@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,13 +42,13 @@ public class MainActivity extends AppCompatActivity {
     /*private static final String API_KEY = "72miGN270wipSIcf0XF6tYvcU6ANuyOI";
     private static final String LOCATION_KEY = "YOUR_LOCATION_KEY";*/
 
-    ArrayList<Day> days = new ArrayList<>();
-    public DayAdapter adapter;
+    //ArrayList<Day> days = new ArrayList<>();
+    //public DayAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        adapter = new DayAdapter(this, days);
+        //adapter = new DayAdapter(this, days);
         setContentView(binding.getRoot());
 
         /*setInitialData();
@@ -193,6 +194,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void goTo(View view) {
+        Intent intent = new Intent(this, ForecastActivity.class);
+        startActivity(intent);
     }
     /*private void setInitialData(){
 

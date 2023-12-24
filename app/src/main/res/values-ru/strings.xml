@@ -19,4 +19,10 @@
     <string name="fri">Пятница</string>
     <string name="sat">Суббота</string>
     <string name="sunday">Воскресенье</string>
+    <string name="none">Не указано</string>
+    <string name="forecast">Прогноз</string>
+    <string name="WVeloc">ветер</string>
+    <string name="temp">температура</string>
+    <string name="hum">влажность</string>
+
 </resources>

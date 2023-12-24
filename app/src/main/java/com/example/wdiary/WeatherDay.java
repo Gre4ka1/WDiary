@@ -6,10 +6,13 @@ import java.util.Calendar;
 import java.util.List;
 
 public class WeatherDay {
+
     public class WeatherTemp {
         Double temp;
         Double temp_min;
         Double temp_max;
+        Double humidity;
+        Double pressure;
     }
     public class WeatherWindV {
         Double speed;
@@ -17,7 +20,8 @@ public class WeatherDay {
     public class WeatherDescription {
         Double hum;
     }
-
+    /*@SerializedName("humidity")
+    private */
     @SerializedName("main")
     private WeatherTemp temp;
 
@@ -46,6 +50,8 @@ public class WeatherDay {
     }
 
     public String getTemp() { return String.valueOf(temp.temp); }
+    public String getHum() { return String.valueOf(temp.humidity); }
+    public String getPres() { return String.valueOf(temp.pressure); }
 
     public String getTempMin() { return String.valueOf(temp.temp_min); }
 

@@ -20,4 +20,9 @@
     <string name="sat">Saturday</string>
     <string name="sunday">Sunday</string>
     <string name="open_weather_maps_app_id" translatable="false">WDiary</string>
+    <string name="none">Not stated</string>
+    <string name="forecast">Forecast</string>
+    <string name="WVeloc">wind speed</string>
+    <string name="temp">temperature</string>
+    <string name="hum">humidity</string>
 </resources>

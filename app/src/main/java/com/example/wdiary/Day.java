@@ -3,26 +3,23 @@ package com.example.wdiary;
 
 
 public class Day {
-    private Date date;
     private int t;
+    private String date;
+    private String dayOfWeek;
     private int wingV;
     private int wetness;
     private String rain;
 
-    public Day(Date date, int t, int wingV, int wetness, String rain) {
-        this.date = date;
+    public Day() {
+    }
+
+    public Day(String date,String dayOfWeek, int t, int wingV, int wetness, String rain) {
         this.t = t;
         this.wingV = wingV;
         this.wetness = wetness;
         this.rain = rain;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
+        this.date=date;
+        this.dayOfWeek=dayOfWeek;
     }
 
     public int getT() {
@@ -55,5 +52,21 @@ public class Day {
 
     public void setRain(String rain) {
         this.rain = rain;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 }
