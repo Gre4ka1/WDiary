@@ -130,7 +130,9 @@ public class ForecastActivity extends AppCompatActivity {
         return dayArrayList;*/
     }
     public void gotoMA(View v){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        //finishActivity(228);
+        finish();
+        //Intent intent = new Intent(this, MainActivity.class);
+        //startActivity(intent);
     }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">WDiary</string>
+    <string name="app_name" translatable="false">GWeather</string>
     <string name="feb">February</string>
     <string name="mar">March</string>
     <string name="apr">April</string>
@@ -25,4 +25,6 @@
     <string name="WVeloc">wind speed</string>
     <string name="temp">temperature</string>
     <string name="hum">humidity</string>
+    <string name="city">city</string>
+
 </resources>

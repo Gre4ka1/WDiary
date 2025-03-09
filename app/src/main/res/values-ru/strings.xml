@@ -24,5 +24,6 @@
     <string name="WVeloc">ветер</string>
     <string name="temp">температура</string>
     <string name="hum">влажность</string>
+    <string name="city">город</string>
 
 </resources>

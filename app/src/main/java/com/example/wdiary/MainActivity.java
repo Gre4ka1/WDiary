@@ -4,12 +4,17 @@ package com.example.wdiary;
 import static com.google.android.material.internal.ContextUtils.getActivity;
 //import static com.google.android.material.snackbar.BaseTransientBottomBar.handler;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -21,6 +26,12 @@ import com.example.wdiary.databinding.ActivityMainBinding;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +39,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,45 +53,116 @@ public class MainActivity extends AppCompatActivity {
     public ActivityMainBinding binding;
     /*private static final String API_KEY = "72miGN270wipSIcf0XF6tYvcU6ANuyOI";
     private static final String LOCATION_KEY = "YOUR_LOCATION_KEY";*/
+    private HashMap<String, Integer> icons = new HashMap<>();
 
-    //ArrayList<Day> days = new ArrayList<>();
-    //public DayAdapter adapter;
+    {
+        icons.put("01d", R.drawable.i01d);
+        icons.put("01n", R.drawable.i01n);
+        icons.put("02d", R.drawable.i02d);
+        icons.put("02n", R.drawable.i02n);
+        icons.put("03d", R.drawable.i03d);
+        icons.put("03n", R.drawable.i03d);
+        icons.put("04d", R.drawable.i04d);
+        icons.put("04n", R.drawable.i04d);
+        icons.put("09d", R.drawable.i09d);
+        icons.put("09n", R.drawable.i09d);
+        icons.put("10d", R.drawable.i10d);
+        icons.put("10n", R.drawable.i10n);
+        icons.put("13d", R.drawable.i13d);
+        icons.put("13n", R.drawable.i13d);
+        icons.put("50d", R.drawable.i50d);
+        icons.put("50n", R.drawable.i50d);
+    }
+
+    private HashMap<String, String> dayOfWeek = new HashMap<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        //adapter = new DayAdapter(this, days);
         setContentView(binding.getRoot());
 
-        /*setInitialData();
-        RecyclerView recyclerView = binding.list;
-        recyclerView.setAdapter(adapter);*/
-        //-----
         //updateWeatherData("Novosibirsk");
-        //Call<WeatherResponse> ca = service.
+
         api = WeatherAPI.getClient().create(WeatherAPI.ApiInterface.class);
-        //Here del MA
+
+        dayOfWeek.put("пн", getString(R.string.mon));
+        dayOfWeek.put("вт", getString(R.string.tue));
+        dayOfWeek.put("ср", getString(R.string.wed));
+        dayOfWeek.put("чт", getString(R.string.thu));
+        dayOfWeek.put("пт", getString(R.string.fri));
+        dayOfWeek.put("сб", getString(R.string.sunday));
+        dayOfWeek.put("вс", getString(R.string.sat));
 
     }
-    public void getWeather(View v) {
+
+    public void getWeather(View v) throws IOException {
         String units = "metric";
         String lang = "ru";
         String key = WeatherAPI.KEY;
 
-        Log.d(TAG, "OK");
+        Log.d(TAG, "getWeather");
+
+
+
+        FileOutputStream fos = null;
+        try {
+            String text = "Novosibirsk";
+            fos = openFileOutput("city.txt", MODE_PRIVATE);
+            fos.write(text.getBytes());
+        }
+        catch(IOException ex) {
+            Log.e(TAG,ex.getMessage());
+        }
+        finally{
+            try{
+                if(fos!=null)
+                    fos.close();
+            }
+            catch(IOException ex){
+                Log.e(TAG,ex.getMessage());}
+        }
+
+
+        FileInputStream fin = null;
+        String city = "Novosibirsk";
+        try {
+            fin = openFileInput("city.txt");
+            byte[] bytes = new byte[fin.available()];
+            fin.read(bytes);
+            city = new String(bytes);
+            Log.i(TAG, city);
+        } catch (IOException ex) {
+            Log.e(TAG, ex.getMessage());
+        } finally {
+            try {
+                if (fin != null)
+                    fin.close();
+            } catch (IOException ex) {
+                Log.e(TAG, ex.getMessage());
+            }
+        }
 
         // get weather for today
-        Call<WeatherDay> callToday = api.getToday("Novosibirsk", units,lang, key);
+
+        Call<WeatherDay> callToday = api.getToday(city, units, lang, key);
         callToday.enqueue(new Callback<WeatherDay>() {
             @Override
             public void onResponse(Call<WeatherDay> call, Response<WeatherDay> response) {
                 Log.i(TAG, "onResponse");
                 WeatherDay data = response.body();
-                //Log.d(TAG,response.toString());
 
                 if (response.isSuccessful()) {
-                    binding.tvTemp.setText(data.getCity() + " " + data.getTempWithDegree()+"\n"+data.getWVel()+" м/с");
-                    //Glide.with(MainActivity.this).load(data.getIconUrl()).into(binding.ivImage);
+                    binding.placeView.setText(data.getCity() + " ");
+                    binding.tempView.setText(data.getTempWithDegree() + " ");
+                    binding.windView.setText(data.getWVel() + " м/с");
+                    Log.i(TAG, data.getIcon().toString());
+                    try {
+                        binding.weatherImage.setImageResource(R.drawable.i02d);
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, data.getIcon().toString() + " " + e);
+                    }
                 }
             }
 
@@ -91,95 +174,54 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // get weather forecast
-        Call<WeatherForecast> callForecast = api.getForecast("Novosibirsk", units,lang, key);
+        Call<WeatherForecast> callForecast = api.getForecast("Novosibirsk", units, lang, key);
         callForecast.enqueue(new Callback<WeatherForecast>() {
             @Override
             public void onResponse(Call<WeatherForecast> call, Response<WeatherForecast> response) {
                 Log.i(TAG, "onResponse");
                 WeatherForecast data = response.body();
-                //Log.d(TAG,response.toString());
 
                 if (response.isSuccessful()) {
                     Log.i(TAG, "Forecast Success");
                     SimpleDateFormat formatDayOfWeek = new SimpleDateFormat("E");
-                    /*LayoutParams paramsTextView = new LayoutParams(
-                            LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-                    LayoutParams paramsImageView = new LayoutParams(convertDPtoPX(40, MainActivity.this),
-                            convertDPtoPX(40, MainActivity.this));
 
-                    int marginRight = convertDPtoPX(15, MainActivity.this);
-                    LayoutParams paramsLinearLayout = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                            LayoutParams.WRAP_CONTENT);
-                    paramsLinearLayout.setMargins(0, 0, marginRight, 0);
-
-                    llForecast.removeAllViews();*/
-                    int i=0;
+                    int i = 0;
+                    int minTemp=100;
                     for (WeatherDay day : data.getItems()) {
-                        if (i==0){
+                        if (i == 0) {
                             i++;
                             continue;
                         }
-                        if (i>=4) break;
+                        String dayOfWeek_ = formatDayOfWeek.format(day.getDate().getTime());
+                        TextView[] vList = new TextView[]{binding.date1, binding.date2, binding.date3,
+                                binding.temperature1, binding.temperature2, binding.temperature3};
+
+                        if (i >= 4) break;
+
+                        switch (day.getDate().get(Calendar.HOUR_OF_DAY)){
+                            case 1:
+                            case 4:
+                            case 7:
+                            case 10:
+                                if (Integer.parseInt(day.getTempInteger())<minTemp) minTemp= Integer.parseInt(day.getTempInteger());
+                        }
+
+
                         if (day.getDate().get(Calendar.HOUR_OF_DAY) == 16) {
 
-                            String date = String.format("%d.%d.%d %d:%d",
+                            /*String date = String.format("%d.%d.%d %d:%d",
                                     day.getDate().get(Calendar.DAY_OF_MONTH),
                                     day.getDate().get(Calendar.MONTH),   //0-12 0-jan
                                     day.getDate().get(Calendar.YEAR),
                                     day.getDate().get(Calendar.HOUR_OF_DAY),
                                     day.getDate().get(Calendar.MINUTE)
                             );
-                            Log.d(TAG, date);
-                            Log.d(TAG, day.getTempInteger());
-                            Log.d(TAG, "---");
+                            */
 
-                            String dayOfWeek_ = formatDayOfWeek.format(day.getDate().getTime());
-                            Map<String,String> dayOfWeek = new HashMap<>();
-                            dayOfWeek.put("пн", getString(R.string.mon));
-                            dayOfWeek.put("вт", getString(R.string.tue));
-                            dayOfWeek.put("ср", getString(R.string.wed));
-                            dayOfWeek.put("чт", getString(R.string.thu));
-                            dayOfWeek.put("пт", getString(R.string.fri));
-                            dayOfWeek.put("сб", getString(R.string.sunday));
-                            dayOfWeek.put("вс", getString(R.string.sat));
-
-                            TextView[] vList = new TextView[]{binding.date1,binding.date2,binding.date3,
-                                    binding.temperature1,binding.temperature2,binding.temperature3,
-                                    binding.weather1,binding.weather2,binding.weather3};
-
-
-
-                            vList[i-1].setText(day.getDate().get(Calendar.DAY_OF_MONTH)+", "+dayOfWeek.get(dayOfWeek_));
-                            vList[i+2].setText(day.getTempWithDegree());
-                            vList[i+5].setText(day.getWVel()+" м/с");
-                            /*binding.date1.setText(day.getDate().get(Calendar.DAY_OF_MONTH)+", "+dayOfWeek.get(dayOfWeek_));
-                            binding.temperature1.setText(day.getTempWithDegree());
-                            binding.weather1.setText(day.getWVel()+" м/с");*/
-                            /*// child view wrapper
-                            LinearLayout childLayout = new LinearLayout(MainActivity.this);
-                            childLayout.setLayoutParams(paramsLinearLayout);
-                            childLayout.setOrientation(LinearLayout.VERTICAL);
-
-                            // show day of week
-                            TextView tvDay = new TextView(MainActivity.this);
-                            String dayOfWeek = formatDayOfWeek.format(day.getDate().getTime());
-                            tvDay.setText(dayOfWeek);
-                            tvDay.setLayoutParams(paramsTextView);
-                            childLayout.addView(tvDay);
-
-                            // show image
-                            ImageView ivIcon = new ImageView(MainActivity.this);
-                            ivIcon.setLayoutParams(paramsImageView);
-                            Glide.with(MainActivity.this).load(day.getIconUrl()).into(ivIcon);
-                            childLayout.addView(ivIcon);
-
-                            // show temp
-                            TextView tvTemp = new TextView(MainActivity.this);
-                            tvTemp.setText(day.getTempWithDegree());
-                            tvTemp.setLayoutParams(paramsTextView);
-                            childLayout.addView(tvTemp);
-
-                            llForecast.addView(childLayout);*/
+                            vList[i - 1].setText(day.getDate().get(Calendar.DAY_OF_MONTH) + ", " + dayOfWeek.get(dayOfWeek_));
+                            vList[i + 2].setText((minTemp+"\u00B0"+" / " + day.getTempWithDegree()));
+                            minTemp=100;
+                            //vList[i+5].setText(day.getWVel()+" м/с");
                             i++;
                         }
 
@@ -196,68 +238,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void goTo(View view) {
+    public void goToForecast(View view) {
         Intent intent = new Intent(this, ForecastActivity.class);
         startActivity(intent);
     }
-    /*private void setInitialData(){
-
-        days.add(new Day (new Date(15,11,2023), 15,10,6,"no"));
-        days.add(new Day (new Date(16,11,2023), 10,170,6,"no"));
-        days.add(new Day (new Date(17,11,2023), 1,0,6,"no"));
-        days.add(new Day (new Date(18,11,2023), 189,90,6,"no"));
-    }*/
-    /*private void updateWeatherData(final String city){
-        new Thread(){
-            public void run(){
-                @SuppressLint("RestrictedApi") final JSONObject json = RemoteFetch.getJSON(getActivity(getApplicationContext()), city);
-                if(json == null){
-                    handler.post(new Runnable(){
-                        @SuppressLint("RestrictedApi")
-                        public void run(){
-                            Toast.makeText(getActivity(getApplicationContext()),
-                                    getActivity(getApplicationContext()).getString(Integer.parseInt("place not found")),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
-                } else {
-                    handler.post(new Runnable(){
-                        public void run(){
-                            adapter.renderWeather(json);
-                        }
-                    });
-                }
-            }
-        }.start();
-    }*/
-    /*public void renderWeather(JSONObject json){
-        try {
-            JSONObject details = json.getJSONArray("weather").getJSONObject(0);
-            JSONObject main = json.getJSONObject("main");
-            days.clear();
-            DateFormat df = DateFormat.getDateTimeInstance();
-            String updatedOn = df.format(new com.example.wdiary.Date(json.getLong("dt")*1000));
-            for (int i = 0; i < 5; i++) {
-
-                days.add(new Day(new Date()))
-            }
-
-            .setText(
-                    details.getString("description").toUpperCase(Locale.US) +
-                            "\n" + "Humidity: " + main.getString("humidity") + "%" +
-                            "\n" + "Pressure: " + main.getString("pressure") + " hPa");
-
-            currentTemperatureField.setText(
-                    String.format("%.2f", main.getDouble("temp"))+ " ℃");
-            DateFormat df = DateFormat.getDateTimeInstance();
-            String updatedOn = df.format(new com.example.wdiary.Date(json.getLong("dt")*1000));
-            updatedField.setText("Last update: " + updatedOn);
-            setWeatherIcon(details.getInt("id"),
-                    json.getJSONObject("sys").getLong("sunrise") * 1000,
-                    json.getJSONObject("sys").getLong("sunset") * 1000);
-
-        }catch(Exception e){
-            Log.e("SimpleWeather", "One or more fields not found in the JSON data");
-        }
-    }*/
+    public void goToSettings(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }
